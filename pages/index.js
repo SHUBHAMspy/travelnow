@@ -1,82 +1,103 @@
-import Head from 'next/head'
+import axios from 'axios';
+import Head from 'next/head';
+import Image from 'next/image';
+import Link from 'next/link';
+import Footer from '../components/atoms/footer';
+import Hero from '../components/atoms/hero';
+import NearbySection from '../components/atoms/nearbyCard';
+import Section from '../components/atoms/section';
+import Header from '../components/organism/header';
+import { wrapper } from '../state/store';
 
-export default function Home() {
+
+export default function Home({exploreNearby,liveAnywhere}) {
+  const metaData = {
+    title: 'TravelNow: Room & Hotel Rentals, Cozy Spaces, Unique Homes & Experiences',
+    description:
+      'A room booking experience platform - Find vacation rentals, unique homes and experiences around the world.',
+  };
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen py-2">
+    <div className="">
       <Head>
-        <title>Create Next App</title>
+        <title>{metaData.title}</title>
+        <meta name='description' content= {metaData.description}/>
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content={metaData.title} />
+        <meta property="og:description" content={metaData.title} />
         <link rel="icon" href="/favicon.ico" />
       </Head>
+      <Header
+        exploreNearby={exploreNearby}
 
-      <main className="flex flex-col items-center justify-center w-full flex-1 px-20 text-center">
-        <h1 className="text-6xl font-bold">
-          Welcome to{' '}
-          <a className="text-blue-600" href="https://nextjs.org">
-            Next.js!
-          </a>
-        </h1>
+      />
+      <main>
+        <Hero/>
 
-        <p className="mt-3 text-2xl">
-          Get started by editing{' '}
-          <code className="p-3 font-mono text-lg bg-gray-100 rounded-md">
-            pages/index.js
-          </code>
-        </p>
-
-        <div className="flex flex-wrap items-center justify-around max-w-4xl mt-6 sm:w-full">
-          <a
-            href="https://nextjs.org/docs"
-            className="p-6 mt-6 text-left border w-96 rounded-xl hover:text-blue-600 focus:text-blue-600"
-          >
-            <h3 className="text-2xl font-bold">Documentation &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Find in-depth information about Next.js features and API.
-            </p>
-          </a>
-
-          <a
-            href="https://nextjs.org/learn"
-            className="p-6 mt-6 text-left border w-96 rounded-xl hover:text-blue-600 focus:text-blue-600"
-          >
-            <h3 className="text-2xl font-bold">Learn &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Learn about Next.js in an interactive course with quizzes!
-            </p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className="p-6 mt-6 text-left border w-96 rounded-xl hover:text-blue-600 focus:text-blue-600"
-          >
-            <h3 className="text-2xl font-bold">Examples &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Discover and deploy boilerplate example Next.js projects.
-            </p>
-          </a>
-
-          <a
-            href="https://vercel.com/import?filter=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className="p-6 mt-6 text-left border w-96 rounded-xl hover:text-blue-600 focus:text-blue-600"
-          >
-            <h3 className="text-2xl font-bold">Deploy &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
-      </main>
-
-      <footer className="flex items-center justify-center w-full h-24 border-t">
-        <a
-          className="flex items-center justify-center"
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+        <Section
+          title={"Explore Nearby"}
+          className="grid grid-cols-2 gap-x-1 gap-y-2 lg:gap-x-4  sm:grid-cols-3 lg:grid-cols-4"
         >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel Logo" className="h-4 ml-2" />
-        </a>
-      </footer>
+          {exploreNearby.map((data,index) => (
+            <NearbySection key={index} data={data}/>
+          ))}
+
+        </Section>
+
+        <Section
+          title="Live Anywhere"
+          className="grid grid-cols-2 lg:gap-x-4 gap-x-1 gap-y-2 lg:grid-cols-4"
+        >
+          {liveAnywhere.map((data,index) => (
+            <Link key={index} href="#">
+              <a>
+                <div className="p-2 lg:p-3 gap-y-4 duration-300 hover:shadow-xl transform transition ease-out rounded-xl">
+                  <div className="relative w-full h-40 mb-2 md:h-60 lg:h-72">
+                    <Image
+                      src={data.img}
+                      alt={data.title}
+                      layout="fill"
+                      objectFit="cover"
+                      placeholder="blur"
+                      blurDataURL={data.img}
+                      className="   rounded-xl"
+                    />
+
+                  </div>
+                  <div>
+                    <h3 className="font-medium leading-5 text-gray-500 text-md md:text-xl">
+                      {data.title}
+                    </h3>
+                  </div>
+                </div>
+              </a>
+
+            </Link>
+
+          ))}
+
+        </Section>
+
+      </main>
+      
+      <Footer/>
+      
+      
     </div>
   )
 }
+
+export const getStaticProps = wrapper.getStaticProps(() => async() => {
+  const exploreNearbyResponse = await axios.get("https://jsonkeeper.com/b/UHQ7");
+  const exploreNearby = exploreNearbyResponse.data ;
+
+  const liveAnywhereResponse = await axios.get('https://jsonkeeper.com/b/VHHT');
+  const liveAnywhere = await liveAnywhereResponse.data;
+
+  return {
+    props:{
+      exploreNearby,
+      liveAnywhere
+    }
+  };
+}
+)
